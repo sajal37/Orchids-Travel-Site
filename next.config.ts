@@ -22,7 +22,6 @@ const nextConfig: NextConfig = {
   },
   // Performance optimizations
   reactStrictMode: true,
-  swcMinify: true,
   compress: true,
   images: {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -36,31 +35,35 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Enable browser source map generation for production
-  productionBrowserSourceMaps: true,
-  // Optimize font loading
-  optimizeFonts: true,
-  // Enable server actions and mutations
-  serverActions: {
-    bodySizeLimit: '2mb',
-  },
+  // Enable production source maps for debugging
+  productionBrowserSourceMaps: false,
   // Configure webpack for better performance
   webpack: (config, { dev, isServer }) => {
-    // Reduce bundle size by excluding unnecessary modules
+    // Optimize bundle size
     if (!dev && !isServer) {
-      config.optimization.splitChunks.cacheGroups = {
-        ...config.optimization.splitChunks.cacheGroups,
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all',
-          priority: 10,
-          reuseExistingChunk: true,
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          ...config.optimization?.splitChunks,
+          cacheGroups: {
+            ...config.optimization?.splitChunks?.cacheGroups,
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all',
+              priority: 10,
+              reuseExistingChunk: true,
+            },
+          },
         },
       };
     }
     
     return config;
+  },
+  // Enable experimental features for better performance
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'framer-motion', '@radix-ui/react-icons'],
   },
 };
 
